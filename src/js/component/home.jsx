@@ -43,9 +43,21 @@ const Home = () => {
 			return false
 		}
 	}
-	const agregarTarea=(evento)=>{
+	const agregarTarea= async(evento)=>{
 		evento.preventDefault()
-		setListaTareas([...listaTareas, tarea])
+		//setListaTareas([...listaTareas, tarea])
+		const response=await fetch("https://playground.4geeks.com/todo/todos/capapra29",{
+			method:"POST",
+				headers:{"Content-Type":"application/json"},
+				body: JSON.stringify({
+					"label": tarea,
+  					"is_done": false
+				})
+			})
+			if(response.status==201){
+				cargarTareas()
+			}
+
 		setTarea("")
 	}
 	const eventoEnter=(evento)=>{
@@ -53,12 +65,19 @@ const Home = () => {
 			agregarTarea(evento)
 		}
 	}
-	const borrarTarea=(evento, id)=> {
+	const borrarTarea=async(evento, id)=> {
 		evento.preventDefault()
-		let aux = listaTareas.filter((item,index)=>{
-			return(index!=  id)
-		})
-		setListaTareas(aux)
+		// let aux = listaTareas.filter((item,index)=>{
+		// 	return(index!=  id)
+		// })
+		// setListaTareas(aux)
+		const response=await fetch("https://playground.4geeks.com/todo/todos/"+id,{
+			method:"DELETE",
+				headers:{"Content-Type":"application/json"},
+			})
+			if(response.status==204){
+				cargarTareas()
+			}
 	}
 
 	useEffect(()=>{
@@ -74,11 +93,13 @@ cargarTareas()
 						<li className="list-group-item" key={index}>
 							{item.label}
 							<i className="fa fa-trash float-end fs-4 text-danger icono-oculto"
-							onClick={(evento)=> borrarTarea(evento,index)}> </i>
+							onClick={(evento)=> borrarTarea(evento,item.id)}> </i>
 							</li>
 					))}
 					</ul>
 				</div>
+				<p className="mt-2 text-end">Tareas Pendientes: { listaTareas.length}
+				</p>
 		</div>
 	);
 };
